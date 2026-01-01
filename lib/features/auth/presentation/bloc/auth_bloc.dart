@@ -68,21 +68,40 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     CheckAuthStatus event,
     Emitter<AuthState> emit,
   ) async {
-    final authResult = await isAuthenticatedUseCase.execute();
-    authResult.fold(
-      (failure) => emit(AuthUnauthenticated()),
-      (isAuthenticated) async {
-        if (isAuthenticated) {
-          final userResult = await getCurrentUserUseCase.execute();
-          userResult.fold(
-            (failure) => emit(AuthUnauthenticated()),
-            (user) => emit(AuthAuthenticated(user: user)),
-          );
-        } else {
+    // Nous émettons d'abord un état de chargement pour éviter un écran blanc
+    emit(AuthLoading());
+    
+    try {
+      // Timeout pour éviter le blocage
+      final authResult = await isAuthenticatedUseCase.execute()
+          .timeout(const Duration(seconds: 5));
+          
+      await authResult.fold(
+        (failure) async {
+          print('⚠️ CheckAuthStatus - isAuthenticated failed: $failure');
           emit(AuthUnauthenticated());
-        }
-      },
-    );
+        },
+        (isAuthenticated) async {
+          if (isAuthenticated) {
+            final userResult = await getCurrentUserUseCase.execute()
+                .timeout(const Duration(seconds: 3));
+            userResult.fold(
+              (failure) {
+                print('⚠️ CheckAuthStatus - getCurrentUser failed: $failure');
+                emit(AuthUnauthenticated());
+              },
+              (user) => emit(AuthAuthenticated(user: user)),
+            );
+          } else {
+            emit(AuthUnauthenticated());
+          }
+        },
+      );
+    } catch (e) {
+      // En cas de timeout ou d'erreur, on considère l'utilisateur comme non authentifié
+      print('⚠️ CheckAuthStatus error: $e');
+      emit(AuthUnauthenticated());
+    }
   }
 
   void _handleAuthResult(

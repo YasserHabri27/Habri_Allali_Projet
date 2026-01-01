@@ -52,9 +52,17 @@ final getIt = GetIt.instance;
 
 Future<void> init() async {
   //! External
-  // Nous enregistrons ici les dépendances externes tierces
-  final sharedPreferences = await SharedPreferences.getInstance();
-  getIt.registerLazySingleton(() => sharedPreferences);
+  // Nous enregistrons ici les dépendances externes tierces avec gestion d'erreurs
+  try {
+    final sharedPreferences = await SharedPreferences.getInstance()
+        .timeout(const Duration(seconds: 3));
+    getIt.registerLazySingleton(() => sharedPreferences);
+  } catch (e) {
+    // En cas d'échec, nous créons une instance vide pour éviter le blocage
+    print('⚠️ Warning: SharedPreferences initialization failed: $e');
+    // On continue sans SharedPreferences - PreferencesService gérera le fallback
+  }
+  
   // Nous utilisons LazySingleton pour Dio afin de garantir une instance unique partagée pour les appels réseaux
   getIt.registerLazySingleton(() => Dio());
   getIt.registerLazySingleton(() => Connectivity());
@@ -63,12 +71,17 @@ Future<void> init() async {
   // Enregistrement des services fondamentaux de l'application
   getIt.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(connectivity: getIt()));
   getIt.registerLazySingleton<PreferencesService>(
-    () => PreferencesService(getIt<SharedPreferences>()),
+    () => PreferencesService(getIt.isRegistered<SharedPreferences>() ? getIt<SharedPreferences>() : null),
   );
   getIt.registerLazySingleton(() => TokenService(getIt()));
   
-  // Initialisation des services nécessitant un démarrage asynchrone
-  await HiveService.init();
+  // Initialisation des services nécessitant un démarrage asynchrone avec gestion d'erreur
+  try {
+    await HiveService.init();
+  } catch (e) {
+    print('⚠️ Warning: Hive initialization failed: $e. Using in-memory cache.');
+    // L'application continuera sans cache persistant local
+  }
 
   //! Features - Auth
   // Data sources

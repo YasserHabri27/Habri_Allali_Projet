@@ -59,17 +59,17 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
             tasksResult.fold(
               (failure) => emit(DashboardError(failure.message)),
               (tasks) async {
-                // Récupération des statistiques globales des tâches
+                // Nous agrégeons ici les statistiques de l'ensemble des tâches pour obtenir une vue d'ensemble de la productivité
                 final taskStatsResult = await _getOverallTaskStatistics(tasks);
                 
                 taskStatsResult.fold(
                   (failure) => emit(DashboardError(failure.message)),
                   (taskStats) {
-                    // Tri des projets par progression croissante pour mettre en avant ceux nécessitant attention
+                    // Nous organisons les projets par ordre de progression croissante afin d'identifier rapidement ceux qui nécessitent une intervention
                     final sortedProjects = List<Project>.from(projects)
                       ..sort((a, b) => a.progress.compareTo(b.progress));
                     
-                    // Tri des tâches par date de modification (les plus récentes d'abord)
+                    // Nous affichons les tâches les plus récemment modifiées en premier pour faciliter la reprise du travail
                     final sortedTasks = List<Task>.from(tasks)
                       ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
                     

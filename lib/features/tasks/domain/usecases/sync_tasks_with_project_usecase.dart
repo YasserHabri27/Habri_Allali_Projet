@@ -16,19 +16,19 @@ class SyncTasksWithProjectUseCase {
   });
   
   Future<Either<Failure, void>> execute(String projectId) async {
-    // 1. Obtenir les statistiques actuelles des tâches
+    // 1. Nous commençons par récupérer les statistiques brutes des tâches pour ce projet
     final statsResult = await taskRepository.getTaskStatistics(projectId);
     
     return await statsResult.fold(
       (failure) => Left(failure),
       (stats) async {
-        // 2. Calculer le nouveau progrès du projet
+        // 2. Nous calculons ensuite la nouvelle progression globale du projet en fonction de ces statistiques
         final progressResult = await calculateProjectProgressUseCase.execute(projectId);
         
         return await progressResult.fold(
           (failure) => Left(failure),
           (progress) async {
-            // 3. Mettre à jour le progrès du projet
+            // 3. Enfin, nous persistons la nouvelle valeur de progression dans le projet correspondant
             return await updateProjectProgressUseCase.execute(projectId, progress);
           },
         );

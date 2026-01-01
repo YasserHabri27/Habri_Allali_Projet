@@ -65,7 +65,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
       (failure) => emit(TaskError(failure.message)),
       (task) {
         emit(TaskCreated(task));
-        // Synchroniser avec le projet pour mettre à jour l'avancement
+        // Nous déclenchons une synchronisation immédiate avec le projet pour refléter l'impact de la nouvelle tâche sur l'avancement
         add(SyncTasksWithProject(task.projectId));
       },
     );

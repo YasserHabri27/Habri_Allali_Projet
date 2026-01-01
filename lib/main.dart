@@ -13,11 +13,11 @@ import 'features/projects/presentation/pages/project_list_page.dart';
 import 'features/tasks/presentation/pages/task_list_page.dart';
 
 void main() async {
-  // Nous assurons l'initialisation des bindings Flutter avant toute opération asynchrone
+  // Nous assurons l'initialisation des liaisons avec le moteur Flutter avant d'exécuter toute opération asynchrone
   WidgetsFlutterBinding.ensureInitialized();
   
   // Nous initialisons notre conteneur d'injection de dépendances (Service Locator)
-  // Cela permet de découpler l'instanciation des classes de leur utilisation
+  // Cette étape est cruciale pour découpler l'instanciation des classes de leur utilisation
   await di.init();
   
   runApp(const PegasusApp());
@@ -28,8 +28,8 @@ class PegasusApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Nous utilisons MultiBlocProvider pour injecter les BLoCs globaux nécessaires à l'application
-    // AuthBloc est injecté ici car l'état d'authentification affecte l'ensemble de l'app
+    // Nous mettons en place le MultiBlocProvider pour injecter les BLoCs globaux nécessaires
+    // AuthBloc est injecté au sommet de l'arbre car l'état d'authentification impacte l'ensemble de l'application
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthBloc>(
@@ -40,7 +40,7 @@ class PegasusApp extends StatelessWidget {
         title: 'Pegasus - Smart Workflow Manager',
         theme: AppTheme.lightTheme(),
         darkTheme: AppTheme.darkTheme(),
-        // Configuration de GoRouter pour la gestion de la navigation
+        // Configuration de GoRouter pour une gestion déclarative de la navigation
         routerConfig: GoRouter(
           initialLocation: '/login',
           routes: [
@@ -65,8 +65,8 @@ class PegasusApp extends StatelessWidget {
               builder: (context, state) => const TaskListPage(),
             ),
           ],
-          // Nous implémentons ici la logique de protection des routes (Guard)
-          // Cette fonction redirige automatiquement l'utilisateur selon son état d'auth
+          // Nous implémentons ici un Guard pour sécuriser l'accès aux routes
+          // Cette fonction redirige automatiquement l'utilisateur en fonction de son statut d'authentification
           redirect: (context, state) {
             final authBloc = context.read<AuthBloc>();
             final isAuthPage = state.matchedLocation == '/login' || state.matchedLocation == '/register';

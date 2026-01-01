@@ -53,27 +53,27 @@ final getIt = GetIt.instance;
 
 Future<void> init() async {
   //! External
-  // Nous enregistrons les dépendances externes tierces
+  // Nous enregistrons ici les dépendances externes tierces
   final sharedPreferences = await SharedPreferences.getInstance();
   getIt.registerLazySingleton(() => sharedPreferences);
-  // Nous utilisons LazySingleton pour Dio afin d'avoir une instance unique partagée
+  // Nous utilisons LazySingleton pour Dio afin de garantir une instance unique partagée pour les appels réseaux
   getIt.registerLazySingleton(() => Dio());
   getIt.registerLazySingleton(() => Connectivity());
 
   //! Core
-  // Nous enregistrons nos services core
+  // Enregistrement des services fondamentaux de l'application
   getIt.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(connectivity: getIt()));
   getIt.registerLazySingleton<PreferencesService>(
     () => PreferencesService(getIt<SharedPreferences>()),
   );
   getIt.registerLazySingleton(() => TokenService(getIt()));
   
-  // Services d'initialisation
+  // Initialisation des services nécessitant un démarrage asynchrone
   await HiveService.init();
 
   //! Features - Auth
   // Data sources
-  // Nous séparons clairement les sources de données distantes (API) et locales (Cache)
+  // Nous distinguons clairement les sources de données distantes (API) et locales (Cache/Stockage sécurisé)
   getIt.registerLazySingleton<AuthRemoteDataSource>(
     () => AuthRemoteDataSourceImpl(dio: getIt()),
   );
@@ -82,7 +82,7 @@ Future<void> init() async {
   );
 
   // Repository
-  // Le repository agit comme une source de vérité unique, orchestrant les data sources
+  // Le repository agit comme source de vérité unique, orchestrant la logique entre les données distantes et locales
   getIt.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(
       remoteDataSource: getIt(),
@@ -93,15 +93,15 @@ Future<void> init() async {
   );
 
   // Use cases
-  // Chaque use case encapsule une règle métier spécifique
+  // Chaque UseCase encapsule une règle métier atomique et spécifique
   getIt.registerLazySingleton(() => LoginUseCase(getIt()));
   getIt.registerLazySingleton(() => RegisterUseCase(getIt()));
   getIt.registerLazySingleton(() => LogoutUseCase(getIt()));
   getIt.registerLazySingleton(() => GetCurrentUserUseCase(getIt()));
   getIt.registerLazySingleton(() => IsAuthenticatedUseCase(getIt()));
 
-  // Presentation
-  // Nous utilisons registerFactory pour les BLoCs car ils doivent être recréés à chaque besoin (et disposés)
+  // Presentation - Auth
+  // Nous utilisons registerFactory pour les BLoCs afin qu'une nouvelle instance soit créée à chaque demande, facilitant la gestion de la mémoire
   getIt.registerFactory(
     () => AuthBloc(
       loginUseCase: getIt(),
@@ -112,7 +112,8 @@ Future<void> init() async {
     ),
   );
 
-  // Features - Projects
+  //! Features - Projects
+  // Configuration des couches Data, Domain et Presentation pour le module Projets
   getIt.registerLazySingleton<ProjectRemoteDataSource>(
     () => ProjectRemoteDataSourceImpl(dio: getIt<Dio>()),
   );
@@ -133,7 +134,7 @@ Future<void> init() async {
   getIt.registerLazySingleton(() => DeleteProjectUseCase(getIt<ProjectRepository>()));
   getIt.registerLazySingleton(() => GetProjectStatisticsUseCase(getIt<ProjectRepository>()));
   getIt.registerLazySingleton(() => UpdateProjectProgressUseCase(getIt<ProjectRepository>()));
-  // UseDependency registered late because of circular dependency resolution capability of GetIt (lazy)
+  // Ce UseCase est enregistré tardivement pour permettre la résolution des dépendances circulaires via GetIt
   getIt.registerLazySingleton(() => CalculateProjectProgressUseCase(getIt<TaskRepository>()));
 
   getIt.registerFactory(
@@ -149,6 +150,7 @@ Future<void> init() async {
   );
 
   //! Features - Tasks
+  // Configuration complète du module Tâches
   // Data sources
   getIt.registerLazySingleton<TaskRemoteDataSource>(
     () => TaskRemoteDataSourceImpl(dio: getIt()),
@@ -194,6 +196,7 @@ Future<void> init() async {
   );
 
   // Features - Dashboard
+  // Enregistrement du BLoC pour le tableau de bord
   getIt.registerFactory(
     () => DashboardBloc(
       getProjectsUseCase: getIt<GetProjectsUseCase>(),

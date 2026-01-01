@@ -1,32 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'config/injection/injection_container.dart' as di;
+import 'core/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize Hive
-  await Hive.initFlutter();
+  // Initialiser l'injection de dépendances
+  await di.init();
   
-  // TODO: Register Hive Adapters here
-  // await Hive.openBox('myBox');
-
-  runApp(const MyApp());
+  runApp(const PegasusApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class PegasusApp extends StatelessWidget {
+  const PegasusApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Pegasus App',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+      title: 'Pegasus - Smart Workflow Manager',
+      theme: AppTheme.lightTheme(),
+      darkTheme: AppTheme.darkTheme(),
       home: const Scaffold(
         body: Center(
-          child: Text('Hello World'),
+          child: Text('Pegasus App - Structure prête!'),
         ),
       ),
     );

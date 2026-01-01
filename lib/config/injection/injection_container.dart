@@ -87,7 +87,6 @@ Future<void> init() async {
       remoteDataSource: getIt(),
       localDataSource: getIt(),
       networkInfo: getIt(),
-      tokenService: getIt(),
     ),
   );
 

@@ -1,5 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:dartz/dartz.dart';
+import 'package:dartz/dartz.dart' hide Task;
 import 'package:meta/meta.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../projects/domain/entities/project.dart';

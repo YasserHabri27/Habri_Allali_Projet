@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/project_bloc.dart';
 import '../bloc/project_event.dart';
 import '../bloc/project_state.dart';
-import '../../config/injection/injection_container.dart' as di;
+import 'package:pegasus_app/config/injection/injection_container.dart' as di;
 
 class ProjectListPage extends StatelessWidget {
   const ProjectListPage({super.key});

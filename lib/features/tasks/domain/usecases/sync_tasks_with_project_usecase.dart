@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/errors/failures.dart';
-import '../../projects/domain/usecases/calculate_project_progress_usecase.dart';
-import '../../projects/domain/usecases/update_project_progress_usecase.dart';
+import 'package:pegasus_app/features/projects/domain/usecases/calculate_project_progress_usecase.dart';
+import 'package:pegasus_app/features/projects/domain/usecases/update_project_progress_usecase.dart';
 import '../repositories/task_repository.dart';
 
 class SyncTasksWithProjectUseCase {

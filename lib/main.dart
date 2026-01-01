@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'config/injection/injection_container.dart' as di;
-import 'core/theme/app_theme.dart';
-import 'features/auth/presentation/bloc/auth_bloc.dart';
-import 'features/auth/presentation/bloc/auth_event.dart';
-import 'features/auth/presentation/bloc/auth_state.dart';
-import 'features/auth/presentation/pages/login_page.dart';
-import 'features/auth/presentation/pages/register_page.dart';
-import 'features/dashboard/presentation/pages/dashboard_page.dart';
-import 'features/projects/presentation/pages/project_list_page.dart';
-import 'features/tasks/presentation/pages/task_list_page.dart';
+import 'package:pegasus_app/config/injection/injection_container.dart' as di;
+import 'package:pegasus_app/core/theme/app_theme.dart';
+import 'package:pegasus_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:pegasus_app/features/auth/presentation/bloc/auth_event.dart';
+import 'package:pegasus_app/features/auth/presentation/bloc/auth_state.dart';
+import 'package:pegasus_app/features/auth/presentation/pages/login_page.dart';
+import 'package:pegasus_app/features/auth/presentation/pages/register_page.dart';
+import 'package:pegasus_app/features/dashboard/presentation/pages/dashboard_page.dart';
+import 'package:pegasus_app/features/projects/presentation/pages/project_list_page.dart';
+import 'package:pegasus_app/features/tasks/presentation/pages/task_list_page.dart';
 
 void main() async {
   // Nous assurons l'initialisation des liaisons avec le moteur Flutter avant d'exécuter toute opération asynchrone

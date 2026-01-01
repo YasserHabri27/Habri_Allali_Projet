@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../auth/presentation/bloc/auth_bloc.dart';
-import '../../../auth/presentation/bloc/auth_event.dart';
-import '../../../tasks/domain/entities/task.dart';
-import '../bloc/dashboard_bloc.dart';
-import '../bloc/dashboard_event.dart';
-import '../bloc/dashboard_state.dart';
-import '../widgets/stats_card.dart';
-import '../widgets/project_progress_card.dart';
-import '../widgets/workflow_visualization.dart';
+import 'package:pegasus_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:pegasus_app/features/auth/presentation/bloc/auth_event.dart';
+import 'package:pegasus_app/features/tasks/domain/entities/task.dart';
+import 'package:pegasus_app/features/dashboard/presentation/bloc/dashboard_bloc.dart';
+import 'package:pegasus_app/features/dashboard/presentation/bloc/dashboard_event.dart';
+import 'package:pegasus_app/features/dashboard/presentation/bloc/dashboard_state.dart';
+import 'package:pegasus_app/features/dashboard/presentation/widgets/stats_card.dart';
+import 'package:pegasus_app/features/dashboard/presentation/widgets/project_progress_card.dart';
+import 'package:pegasus_app/features/dashboard/presentation/widgets/workflow_visualization.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -288,7 +288,7 @@ class DashboardPage extends StatelessWidget {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: _getTaskColor(task.status).withOpacity(0.1),
+            color: _getTaskColor(task.status).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(

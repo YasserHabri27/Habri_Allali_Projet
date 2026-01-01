@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/errors/failures.dart';
-import '../../tasks/domain/entities/task.dart';
-import '../../tasks/domain/repositories/task_repository.dart';
+import 'package:pegasus_app/features/tasks/domain/entities/task.dart';
+import 'package:pegasus_app/features/tasks/domain/repositories/task_repository.dart';
 
 class CalculateProjectProgressUseCase {
   // Ce cas d'utilisation dépend du Repository des tâches pour calculer la progression.

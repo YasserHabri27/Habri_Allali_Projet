@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pegasus_app/core/theme/app_theme.dart';
-import 'package:pegasus_app/features/auth/presentation/pages/login_page.dart';
+import 'package:pegasus_app/features/auth/presentation/pages/login_page_simple.dart';
 
 void main() async {
   // Version simplifiée pour tester sans AuthBloc

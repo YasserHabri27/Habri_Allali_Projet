@@ -10,6 +10,7 @@ import 'features/auth/presentation/pages/login_page.dart';
 import 'features/auth/presentation/pages/register_page.dart';
 import 'features/dashboard/presentation/pages/dashboard_page.dart';
 import 'features/projects/presentation/pages/project_list_page.dart';
+import 'features/tasks/presentation/pages/task_list_page.dart';
 
 void main() async {
   // Nous assurons l'initialisation des bindings Flutter avant toute opération asynchrone
@@ -58,6 +59,10 @@ class PegasusApp extends StatelessWidget {
             GoRoute(
               path: '/projects',
               builder: (context, state) => const ProjectListPage(),
+            ),
+            GoRoute(
+              path: '/tasks',
+              builder: (context, state) => const TaskListPage(),
             ),
           ],
           // Nous implémentons ici la logique de protection des routes (Guard)

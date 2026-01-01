@@ -32,7 +32,7 @@ class WorkflowVisualization extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            // Diagramme simplifié Projects → Tasks
+            // Visualisation simplifiée du flux : Projets -> Tâches
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -65,7 +65,7 @@ class WorkflowVisualization extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            // Barre de progression globale
+            // Indicateur de progression globale
             LinearProgressIndicator(
               value: overallProgress / 100,
               backgroundColor: Colors.grey[200],

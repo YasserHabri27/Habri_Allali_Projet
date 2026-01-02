@@ -1,4 +1,4 @@
-import 'package:dartz/dartz.dart';
+import 'package:dartz/dartz.dart' hide Task;
 import '../../domain/entities/task.dart';
 import '../../domain/repositories/task_repository.dart';
 import '../../../../core/errors/failures.dart';
@@ -90,6 +90,17 @@ class MockTaskRepository implements TaskRepository {
   }
 
   @override
+  Future<Either<Failure, Task>> getTaskById(String id) async {
+    await Future.delayed(const Duration(milliseconds: 100));
+    try {
+      final task = _mockTasks.firstWhere((t) => t.id == id);
+      return Right(task);
+    } catch (e) {
+      return Left(ServerFailure(message: 'Task not found'));
+    }
+  }
+
+  @override
   Future<Either<Failure, Task>> createTask(Task task) async {
     await Future.delayed(const Duration(milliseconds: 200));
     _mockTasks.add(task);
@@ -104,7 +115,7 @@ class MockTaskRepository implements TaskRepository {
       _mockTasks[index] = task;
       return Right(task);
     }
-    return Left(ServerFailure());
+    return Left(ServerFailure(message: 'Task not found'));
   }
 
   @override
@@ -115,41 +126,42 @@ class MockTaskRepository implements TaskRepository {
   }
 
   @override
-  Future<Either<Failure, Task>> updateTaskStatus(String taskId, TaskStatus newStatus) async {
+  Future<Either<Failure, List<Task>>> getTasksByStatus(TaskStatus status) async {
     await Future.delayed(const Duration(milliseconds: 100));
-    final index = _mockTasks.indexWhere((t) => t.id == taskId);
-    if (index != -1) {
-      final task = _mockTasks[index];
-      final updatedTask = Task(
-        id: task.id,
-        projectId: task.projectId,
-        title: task.title,
-        description: task.description,
-        priority: task.priority,
-        status: newStatus,
-        dueDate: task.dueDate,
-        completedAt: newStatus == TaskStatus.done ? DateTime.now() : null,
-        createdAt: task.createdAt,
-        updatedAt: DateTime.now(),
-      );
-      _mockTasks[index] = updatedTask;
-      return Right(updatedTask);
-    }
-    return Left(ServerFailure());
+    return Right(_mockTasks.where((t) => t.status == status).toList());
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> getTaskStatistics() async {
+  Future<Either<Failure, List<Task>>> getTasksByPriority(TaskPriority priority) async {
     await Future.delayed(const Duration(milliseconds: 100));
-    final completedTasks = _mockTasks.where((t) => t.status == TaskStatus.done).length;
-    final overdueTasks = _mockTasks.where((t) => t.isOverdue && t.status != TaskStatus.done).length;
+    return Right(_mockTasks.where((t) => t.priority == priority).toList());
+  }
+
+  @override
+  Future<Either<Failure, List<Task>>> getOverdueTasks() async {
+    await Future.delayed(const Duration(milliseconds: 100));
+    return Right(_mockTasks.where((t) => t.isOverdue && t.status != TaskStatus.done).toList());
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getTaskStatistics(String projectId) async {
+    await Future.delayed(const Duration(milliseconds: 100));
+    final projectTasks = _mockTasks.where((t) => t.projectId == projectId).toList();
+    final completedTasks = projectTasks.where((t) => t.status == TaskStatus.done).length;
     
     return Right({
-      'totalTasks': _mockTasks.length,
+      'totalTasks': projectTasks.length,
       'completedTasks': completedTasks,
-      'inProgressTasks': _mockTasks.where((t) => t.status == TaskStatus.inProgress).length,
-      'overdueTasks': overdueTasks,
-      'completionRate': _mockTasks.isEmpty ? 0.0 : (completedTasks / _mockTasks.length) * 100,
+      'inProgressTasks': projectTasks.where((t) => t.status == TaskStatus.inProgress).length,
+      'todoTasks': projectTasks.where((t) => t.status == TaskStatus.todo).length,
+      'completionRate': projectTasks.isEmpty ? 0.0 : (completedTasks / projectTasks.length) * 100,
     });
+  }
+
+  @override
+  Future<Either<Failure, void>> syncTasksWithProject(String projectId) async {
+    // Dans une vraie implémentation, cela pourrait synchroniser avec le backend
+    await Future.delayed(const Duration(milliseconds: 100));
+    return const Right(null);
   }
 }

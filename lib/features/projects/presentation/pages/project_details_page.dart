@@ -7,6 +7,7 @@ import '../bloc/project_state.dart';
 import '../../../tasks/presentation/bloc/task_bloc.dart';
 import '../../../tasks/presentation/bloc/task_event.dart';
 import '../../../tasks/presentation/bloc/task_state.dart';
+import '../../../tasks/domain/entities/task.dart';
 import '../../domain/entities/project.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:pegasus_app/config/injection/injection_container.dart' as di;
@@ -19,17 +20,13 @@ class ProjectDetailsPage extends StatelessWidget {
   Color _getStatusColor(ProjectStatus status) {
     switch (status) {
       case ProjectStatus.todo:
-        return Colors.grey;
-      case ProjectStatus.planning:
         return Colors.blue;
       case ProjectStatus.inProgress:
         return Colors.orange;
-      case ProjectStatus.completed:
+      case ProjectStatus.done:
         return Colors.green;
-      case ProjectStatus.onHold:
+      case ProjectStatus.archived:
         return Colors.grey;
-      case ProjectStatus.cancelled:
-        return Colors.red;
     }
   }
 
@@ -38,7 +35,7 @@ class ProjectDetailsPage extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => di.getIt<ProjectBloc>()..add(GetProjectById(projectId)),
+          create: (context) => di.getIt<ProjectBloc>()..add(GetProjectByIdEvent(projectId)),
         ),
         BlocProvider(
           create: (context) => di.getIt<TaskBloc>()..add(LoadTasksByProject(projectId)),

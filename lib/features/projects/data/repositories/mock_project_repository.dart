@@ -24,7 +24,7 @@ class MockProjectRepository implements ProjectRepository {
       userId: 'mock-user',
       name: 'Site Web E-commerce',
       description: 'Plateforme de vente en ligne moderne',
-      status: ProjectStatus.planning,
+      status: ProjectStatus.todo,
       progress: 15.0,
       startDate: DateTime.now(),
       endDate: DateTime.now().add(const Duration(days: 90)),
@@ -38,7 +38,7 @@ class MockProjectRepository implements ProjectRepository {
       userId: 'mock-user',
       name: 'Migration Cloud AWS',
       description: 'Migration de l\'infrastructure vers AWS',
-      status: ProjectStatus.completed,
+      status: ProjectStatus.done,
       progress: 100.0,
       startDate: DateTime.now().subtract(const Duration(days: 60)),
       endDate: DateTime.now().subtract(const Duration(days: 5)),
@@ -51,7 +51,7 @@ class MockProjectRepository implements ProjectRepository {
 
   @override
   Future<Either<Failure, List<Project>>> getProjects() async {
-    await Future.delayed(const Duration(milliseconds: 200)); // Simulate network
+    await Future.delayed(const Duration(milliseconds: 200));
     return Right(_mockProjects);
   }
 
@@ -62,7 +62,7 @@ class MockProjectRepository implements ProjectRepository {
       final project = _mockProjects.firstWhere((p) => p.id == id);
       return Right(project);
     } catch (e) {
-      return Left(ServerFailure());
+      return Left(ServerFailure(message: 'Project not found'));
     }
   }
 
@@ -81,7 +81,7 @@ class MockProjectRepository implements ProjectRepository {
       _mockProjects[index] = project;
       return Right(project);
     }
-    return Left(ServerFailure());
+    return Left(ServerFailure(message: 'Project not found'));
   }
 
   @override
@@ -96,7 +96,7 @@ class MockProjectRepository implements ProjectRepository {
     await Future.delayed(const Duration(milliseconds: 100));
     return Right({
       'totalProjects': _mockProjects.length,
-      'completedProjects': _mockProjects.where((p) => p.status == ProjectStatus.completed).length,
+      'completedProjects': _mockProjects.where((p) => p.status == ProjectStatus.done).length,
       'inProgressProjects': _mockProjects.where((p) => p.status == ProjectStatus.inProgress).length,
       'averageProgress': _mockProjects.isEmpty 
         ? 0.0 
@@ -110,22 +110,28 @@ class MockProjectRepository implements ProjectRepository {
     final index = _mockProjects.indexWhere((p) => p.id == projectId);
     if (index != -1) {
       final project = _mockProjects[index];
-      _mockProjects[index] = Project(
-        id: project.id,
-        userId: project.userId,
-        name: project.name,
-        description: project.description,
-        status: project.status,
+      _mockProjects[index] = project.copyWith(
         progress: progress,
-        startDate: project.startDate,
-        endDate: project.endDate,
-        createdAt: project.createdAt,
         updatedAt: DateTime.now(),
-        taskIds: project.taskIds,
-        colorHex: project.colorHex,
       );
       return const Right(null);
     }
-    return Left(ServerFailure());
+    return Left(ServerFailure(message: 'Project not found'));
+  }
+
+  @override
+  Future<Either<Failure, double>> calculateProjectProgress(String projectId) async {
+    // Retourne la progression actuelle
+    final index = _mockProjects.indexWhere((p) => p.id == projectId);
+    if (index != -1) {
+      return Right(_mockProjects[index].progress);
+    }
+    return Left(ServerFailure(message: 'Project not found'));
+  }
+
+  @override
+  Future<Either<Failure, List<Project>>> getProjectsByStatus(ProjectStatus status) async {
+    await Future.delayed(const Duration(milliseconds: 100));
+    return Right(_mockProjects.where((p) => p.status == status).toList());
   }
 }

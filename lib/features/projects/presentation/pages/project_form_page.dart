@@ -23,7 +23,7 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
   
   DateTime _startDate = DateTime.now();
   DateTime _endDate = DateTime.now().add(const Duration(days: 30));
-  ProjectStatus _status = ProjectStatus.planning;
+  ProjectStatus _status = ProjectStatus.todo;
   String? _selectedColor;
 
   final List<Map<String, dynamic>> _colors = [

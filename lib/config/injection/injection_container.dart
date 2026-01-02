@@ -6,6 +6,7 @@ import 'package:pegasus_app/core/network/api_client.dart';
 import 'package:pegasus_app/core/network/network_info.dart';
 import 'package:pegasus_app/core/storage/hive_service.dart';
 import 'package:pegasus_app/core/storage/preferences_service.dart';
+import 'package:pegasus_app/core/storage/data_seeder.dart';
 
 import 'package:pegasus_app/features/auth/data/datasources/auth_local_datasource.dart';
 import 'package:pegasus_app/features/auth/data/datasources/auth_remote_datasource.dart';
@@ -81,9 +82,18 @@ Future<void> init() async {
   // Initialisation des services nécessitant un démarrage asynchrone avec gestion d'erreur
   try {
     await HiveService.init();
+    await HiveService.openBoxes();
+    print('✅ Hive initialized and boxes opened successfully');
   } catch (e) {
     print('⚠️ Warning: Hive initialization failed: $e. Using in-memory cache.');
     // L'application continuera sans cache persistant local
+  }
+  
+  // Nous peuplons la base de données avec des données de démonstration si c'est le premier lancement
+  try {
+    await DataSeeder.seedIfNeeded();
+  } catch (e) {
+    print('⚠️ Warning: Data seeding failed: $e');
   }
 
   //! Features - Auth
@@ -99,15 +109,14 @@ Future<void> init() async {
   // Repository
   // Le repository agit comme source de vérité unique, orchestrant la logique entre les données distantes et locales
   // Repository
-  // Le repository agit comme source de vérité unique, orchestrant la logique entre les données distantes et locales
-  
-  // TOGGLE DEMO MODE: Mettre à true pour la soutenance si le backend n'est pas dispo
-  const bool useMockData = true; 
+  // Nous utilisons maintenant les vrais repositories avec Hive comme stockage local
+  const bool useMockData = false; 
 
   if (useMockData) {
     print('🚨 DEMO MODE ACTIVATED: Using Mock Repositories');
     getIt.registerLazySingleton<AuthRepository>(() => MockAuthRepository());
   } else {
+    print('💾 REAL MODE: Using Hive Local Storage');
     getIt.registerLazySingleton<AuthRepository>(
       () => AuthRepositoryImpl(
         remoteDataSource: getIt(),

@@ -9,6 +9,8 @@ import 'package:pegasus_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:pegasus_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:pegasus_app/features/auth/presentation/pages/login_page.dart';
 import 'package:pegasus_app/features/auth/presentation/pages/register_page.dart';
+import 'package:pegasus_app/features/dashboard/presentation/bloc/dashboard_bloc.dart';
+import 'package:pegasus_app/features/dashboard/presentation/bloc/dashboard_event.dart';
 import 'package:pegasus_app/features/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:pegasus_app/features/projects/presentation/pages/project_list_page.dart';
 import 'package:pegasus_app/features/projects/presentation/pages/project_form_page.dart';
@@ -38,11 +40,14 @@ class PegasusApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Nous mettons en place le MultiBlocProvider pour injecter les BLoCs globaux nécessaires
-    // AuthBloc est injecté au sommet de l'arbre car l'état d'authentification impacte l'ensemble de l'application
+    // AuthBloc et DashboardBloc sont injectés au sommet de l'arbre car utilisés globalement
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthBloc>(
           create: (context) => di.getIt<AuthBloc>()..add(CheckAuthStatus()),
+        ),
+        BlocProvider<DashboardBloc>(
+          create: (context) => di.getIt<DashboardBloc>()..add(LoadDashboardData()),
         ),
       ],
       child: const _AppRouter(),

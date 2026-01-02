@@ -19,6 +19,8 @@ import 'package:pegasus_app/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:pegasus_app/features/auth/domain/usecases/register_usecase.dart';
 import 'package:pegasus_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pegasus_app/features/auth/data/repositories/mock_auth_repository.dart';
+import 'package:pegasus_app/features/projects/data/repositories/mock_project_repository.dart';
+import 'package:pegasus_app/features/tasks/data/repositories/mock_task_repository.dart';
 
 import 'package:pegasus_app/features/projects/data/datasources/project_local_datasource.dart';
 import 'package:pegasus_app/features/projects/data/datasources/project_remote_datasource.dart';
@@ -143,13 +145,18 @@ Future<void> init() async {
   getIt.registerLazySingleton<ProjectLocalDataSource>(
     () => ProjectLocalDataSourceImpl(),
   );
-  getIt.registerLazySingleton<ProjectRepository>(
-    () => ProjectRepositoryImpl(
-      remoteDataSource: getIt<ProjectRemoteDataSource>(),
-      localDataSource: getIt<ProjectLocalDataSource>(),
-      networkInfo: getIt<NetworkInfo>(),
-    ),
-  );
+  
+  if (useMockData) {
+    getIt.registerLazySingleton<ProjectRepository>(() => MockProjectRepository());
+  } else {
+    getIt.registerLazySingleton<ProjectRepository>(
+      () => ProjectRepositoryImpl(
+        remoteDataSource: getIt<ProjectRemoteDataSource>(),
+        localDataSource: getIt<ProjectLocalDataSource>(),
+        networkInfo: getIt<NetworkInfo>(),
+      ),
+    );
+  }
   getIt.registerLazySingleton(() => GetProjectsUseCase(getIt<ProjectRepository>()));
   getIt.registerLazySingleton(() => GetProjectByIdUseCase(getIt<ProjectRepository>()));
   getIt.registerLazySingleton(() => CreateProjectUseCase(getIt<ProjectRepository>()));
@@ -183,13 +190,17 @@ Future<void> init() async {
   );
 
   // Repository
-  getIt.registerLazySingleton<TaskRepository>(
-    () => TaskRepositoryImpl(
-      remoteDataSource: getIt(),
-      localDataSource: getIt(),
-      networkInfo: getIt(),
-    ),
-  );
+  if (useMockData) {
+    getIt.registerLazySingleton<TaskRepository>(() => MockTaskRepository());
+  } else {
+    getIt.registerLazySingleton<TaskRepository>(
+      () => TaskRepositoryImpl(
+        remoteDataSource: getIt(),
+        localDataSource: getIt(),
+        networkInfo: getIt(),
+      ),
+    );
+  }
 
   // Use Cases
   getIt.registerLazySingleton(() => CreateTaskUseCase(getIt()));

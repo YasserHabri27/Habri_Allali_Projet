@@ -13,6 +13,8 @@ import 'package:pegasus_app/features/dashboard/presentation/bloc/dashboard_state
 import 'package:pegasus_app/features/dashboard/presentation/widgets/stats_card.dart';
 import 'package:pegasus_app/features/dashboard/presentation/widgets/project_progress_card.dart';
 import 'package:pegasus_app/features/dashboard/presentation/widgets/workflow_visualization.dart';
+import 'package:pegasus_app/config/injection/injection_container.dart' as di;
+
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});

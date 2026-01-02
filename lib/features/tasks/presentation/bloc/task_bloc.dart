@@ -1,3 +1,4 @@
+```dart
 import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:meta/meta.dart';
@@ -9,7 +10,7 @@ import '../../domain/usecases/get_tasks_by_project_usecase.dart';
 import '../../domain/usecases/update_task_usecase.dart';
 import '../../domain/usecases/update_task_status_usecase.dart';
 import '../../domain/usecases/delete_task_usecase.dart';
-import '../../domain/usecases/sync_tasks_with_project_usecase.dart';
+import '../../../projects/domain/usecases/recalculate_project_progress_usecase.dart';
 import 'task_event.dart';
 import 'task_state.dart';
 
@@ -20,7 +21,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   final UpdateTaskUseCase updateTaskUseCase;
   final UpdateTaskStatusUseCase updateTaskStatusUseCase;
   final DeleteTaskUseCase deleteTaskUseCase;
-  final SyncTasksWithProjectUseCase syncTasksWithProjectUseCase;
+  final RecalculateProjectProgressUseCase recalculateProjectProgressUseCase;
 
   TaskBloc({
     required this.getTasksUseCase,
@@ -29,7 +30,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     required this.updateTaskUseCase,
     required this.updateTaskStatusUseCase,
     required this.deleteTaskUseCase,
-    required this.syncTasksWithProjectUseCase,
+    required this.recalculateProjectProgressUseCase,
   }) : super(TaskInitial()) {
     on<LoadTasks>(_onLoadTasks);
     on<LoadTasksByProject>(_onLoadTasksByProject);
@@ -37,7 +38,6 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     on<UpdateTask>(_onUpdateTask);
     on<UpdateTaskStatus>(_onUpdateTaskStatus);
     on<DeleteTask>(_onDeleteTask);
-    on<SyncTasksWithProject>(_onSyncTasksWithProject);
   }
 
   Future<void> _onLoadTasks(LoadTasks event, Emitter<TaskState> emit) async {
@@ -61,12 +61,12 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   Future<void> _onCreateTask(CreateTask event, Emitter<TaskState> emit) async {
     emit(TaskLoading());
     final result = await createTaskUseCase.execute(event.task);
-    result.fold(
-      (failure) => emit(TaskError(failure.message)),
-      (task) {
+    await result.fold(
+      (failure) async => emit(TaskError(failure.message)),
+      (task) async {
         emit(TaskCreated(task));
-        // Nous déclenchons une synchronisation immédiate avec le projet pour refléter l'impact de la nouvelle tâche sur l'avancement
-        add(SyncTasksWithProject(task.projectId));
+        // Nous recalculons automatiquement la progression du projet
+        await recalculateProjectProgressUseCase.execute(task.projectId);
       },
     );
   }
@@ -74,12 +74,12 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   Future<void> _onUpdateTask(UpdateTask event, Emitter<TaskState> emit) async {
     emit(TaskLoading());
     final result = await updateTaskUseCase.execute(event.task);
-    result.fold(
-      (failure) => emit(TaskError(failure.message)),
-      (task) {
+    await result.fold(
+      (failure) async => emit(TaskError(failure.message)),
+      (task) async {
         emit(TaskUpdated(task));
-        // Synchroniser avec le projet pour mettre à jour l'avancement
-        add(SyncTasksWithProject(task.projectId));
+        // Nous recalculons automatiquement la progression du projet
+        await recalculateProjectProgressUseCase.execute(task.projectId);
       },
     );
   }
@@ -87,12 +87,14 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   Future<void> _onUpdateTaskStatus(UpdateTaskStatus event, Emitter<TaskState> emit) async {
     emit(TaskLoading());
     final result = await updateTaskStatusUseCase.execute(event.taskId, event.newStatus);
-    result.fold(
-      (failure) => emit(TaskError(failure.message)),
-      (task) {
+    await result.fold(
+      (failure) async => emit(TaskError(failure.message)),
+      (task) async {
         emit(TaskUpdated(task));
-        // Synchroniser avec le projet pour mettre à jour l'avancement
-        add(SyncTasksWithProject(task.projectId));
+        // Nous recalculons automatiquement la progression du projet
+        await recalculateProjectProgressUseCase.execute(task.projectId);
+        // Nous rechargeons la liste des tâches pour refléter le changement
+        add(LoadTasks());
       },
     );
   }
@@ -106,11 +108,4 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     );
   }
 
-  Future<void> _onSyncTasksWithProject(SyncTasksWithProject event, Emitter<TaskState> emit) async {
-    final result = await syncTasksWithProjectUseCase.execute(event.projectId);
-    result.fold(
-      (failure) => emit(TaskError(failure.message)),
-      (_) => emit(TaskSyncedWithProject(event.projectId)),
-    );
-  }
 }

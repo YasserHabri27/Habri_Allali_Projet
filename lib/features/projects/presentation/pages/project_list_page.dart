@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../bloc/project_bloc.dart';
 import '../bloc/project_event.dart';
 import '../bloc/project_state.dart';
@@ -31,6 +32,9 @@ class ProjectListPage extends StatelessWidget {
                     title: Text(project.name),
                     subtitle: Text('Progress: ${project.progress.toStringAsFixed(1)}%'),
                     trailing: const Icon(Icons.arrow_forward_ios),
+                    onTap: () {
+                      context.push('/projects/${project.id}');
+                    },
                   );
                 },
               );
@@ -47,7 +51,7 @@ class ProjectListPage extends StatelessWidget {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            // Navigate to project creation form
+            context.push('/projects/new');
           },
           child: const Icon(Icons.add),
         ),

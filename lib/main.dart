@@ -11,7 +11,10 @@ import 'package:pegasus_app/features/auth/presentation/pages/login_page.dart';
 import 'package:pegasus_app/features/auth/presentation/pages/register_page.dart';
 import 'package:pegasus_app/features/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:pegasus_app/features/projects/presentation/pages/project_list_page.dart';
+import 'package:pegasus_app/features/projects/presentation/pages/project_form_page.dart';
+import 'package:pegasus_app/features/projects/presentation/pages/project_details_page.dart';
 import 'package:pegasus_app/features/tasks/presentation/pages/task_list_page.dart';
+import 'package:pegasus_app/features/tasks/presentation/pages/task_form_page.dart';
 
 void main() async {
   // Nous assurons l'initialisation des liaisons avec le moteur Flutter avant d'exécuter toute opération asynchrone
@@ -80,8 +83,41 @@ class _AppRouterState extends State<_AppRouter> {
           builder: (context, state) => const ProjectListPage(),
         ),
         GoRoute(
+          path: '/projects/new',
+          builder: (context, state) => const ProjectFormPage(),
+        ),
+        GoRoute(
+          path: '/projects/:id',
+          builder: (context, state) {
+            final id = state.pathParameters['id']!;
+            return ProjectDetailsPage(projectId: id);
+          },
+        ),
+        GoRoute(
+          path: '/projects/:id/edit',
+          builder: (context, state) {
+            final id = state.pathParameters['id']!;
+            return ProjectFormPage(projectId: id);
+          },
+        ),
+        GoRoute(
           path: '/tasks',
           builder: (context, state) => const TaskListPage(),
+        ),
+        GoRoute(
+          path: '/tasks/new',
+          builder: (context, state) {
+            final projectId = state.uri.queryParameters['projectId'];
+            return TaskFormPage(projectId: projectId);
+          },
+        ),
+        GoRoute(
+          path: '/tasks/:id/edit',
+          builder: (context, state) {
+            final id = state.pathParameters['id']!;
+            final projectId = state.uri.queryParameters['projectId'];
+            return TaskFormPage(taskId: id, projectId: projectId);
+          },
         ),
       ],
       redirect: (context, state) {

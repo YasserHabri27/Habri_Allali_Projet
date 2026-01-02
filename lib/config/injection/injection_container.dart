@@ -35,6 +35,7 @@ import 'package:pegasus_app/features/projects/domain/usecases/get_project_statis
 import 'package:pegasus_app/features/projects/domain/usecases/get_projects_usecase.dart';
 import 'package:pegasus_app/features/projects/domain/usecases/update_project_progress_usecase.dart';
 import 'package:pegasus_app/features/projects/domain/usecases/update_project_usecase.dart';
+import 'package:pegasus_app/features/projects/domain/usecases/recalculate_project_progress_usecase.dart';
 import 'package:pegasus_app/features/projects/presentation/bloc/project_bloc.dart';
 
 import 'package:pegasus_app/features/tasks/data/datasources/task_local_datasource.dart';
@@ -173,6 +174,10 @@ Future<void> init() async {
   getIt.registerLazySingleton(() => DeleteProjectUseCase(getIt<ProjectRepository>()));
   getIt.registerLazySingleton(() => GetProjectStatisticsUseCase(getIt<ProjectRepository>()));
   getIt.registerLazySingleton(() => UpdateProjectProgressUseCase(getIt<ProjectRepository>()));
+  getIt.registerLazySingleton(() => RecalculateProjectProgressUseCase(
+    taskRepository: getIt<TaskRepository>(),
+    projectRepository: getIt<ProjectRepository>(),
+  ));
   // Ce UseCase est enregistré tardivement pour permettre la résolution des dépendances circulaires via GetIt
   getIt.registerLazySingleton(() => CalculateProjectProgressUseCase(getIt<TaskRepository>()));
 
@@ -234,7 +239,7 @@ Future<void> init() async {
       updateTaskUseCase: getIt<UpdateTaskUseCase>(),
       updateTaskStatusUseCase: getIt<UpdateTaskStatusUseCase>(),
       deleteTaskUseCase: getIt<DeleteTaskUseCase>(),
-      syncTasksWithProjectUseCase: getIt<SyncTasksWithProjectUseCase>(),
+      recalculateProjectProgressUseCase: getIt<RecalculateProjectProgressUseCase>(),
     ),
   );
 

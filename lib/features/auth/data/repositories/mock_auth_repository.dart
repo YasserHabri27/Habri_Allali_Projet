@@ -23,7 +23,6 @@ class MockAuthRepository implements AuthRepository {
         name: email.split('@').first,
         email: email,
         token: 'mock-token-${DateTime.now().millisecondsSinceEpoch}',
-        createdAt: DateTime.now(),
       );
       
       await localDataSource.cacheUser(userModel);
@@ -43,7 +42,6 @@ class MockAuthRepository implements AuthRepository {
         name: name,
         email: email,
         token: 'mock-token-${DateTime.now().millisecondsSinceEpoch}',
-        createdAt: DateTime.now(),
       );
       
       await localDataSource.cacheUser(userModel);

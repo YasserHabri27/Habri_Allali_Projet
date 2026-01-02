@@ -18,6 +18,8 @@ class ProjectDetailsPage extends StatelessWidget {
 
   Color _getStatusColor(ProjectStatus status) {
     switch (status) {
+      case ProjectStatus.todo:
+        return Colors.grey;
       case ProjectStatus.planning:
         return Colors.blue;
       case ProjectStatus.inProgress:

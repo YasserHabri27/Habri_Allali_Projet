@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import '../../domain/entities/project.dart';
 import '../../domain/repositories/project_repository.dart';
-import '../../../../core/error/failures.dart';
+import '../../../../core/errors/failures.dart';
 
 class MockProjectRepository implements ProjectRepository {
   final List<Project> _mockProjects = [

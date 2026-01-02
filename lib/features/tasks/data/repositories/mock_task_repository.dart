@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import '../../domain/entities/task.dart';
 import '../../domain/repositories/task_repository.dart';
-import '../../../../core/error/failures.dart';
+import '../../../../core/errors/failures.dart';
 
 class MockTaskRepository implements TaskRepository {
   final List<Task> _mockTasks = [

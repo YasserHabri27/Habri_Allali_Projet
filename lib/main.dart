@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -41,67 +42,95 @@ class PegasusApp extends StatelessWidget {
           create: (context) => di.getIt<AuthBloc>()..add(CheckAuthStatus()),
         ),
       ],
-      child: Builder(
-        builder: (context) {
-          return MaterialApp.router(
-            title: 'Pegasus - Smart Workflow Manager',
-            theme: AppTheme.lightTheme(),
-            darkTheme: AppTheme.darkTheme(),
-            debugShowCheckedModeBanner: false,
-            // Configuration de GoRouter pour une gestion déclarative de la navigation
-            routerConfig: GoRouter(
-              initialLocation: '/login',
-              routes: [
-                GoRoute(
-                  path: '/login',
-                  builder: (context, state) => const LoginPage(),
-                ),
-                GoRoute(
-                  path: '/register',
-                  builder: (context, state) => const RegisterPage(),
-                ),
-                GoRoute(
-                  path: '/dashboard',
-                  builder: (context, state) => const DashboardPage(),
-                ),
-                GoRoute(
-                  path: '/projects',
-                  builder: (context, state) => const ProjectListPage(),
-                ),
-                GoRoute(
-                  path: '/tasks',
-                  builder: (context, state) => const TaskListPage(),
-                ),
-              ],
-              // Nous implémentons ici un Guard pour sécuriser l'accès aux routes
-              // Cette fonction redirige automatiquement l'utilisateur en fonction de son statut d'authentification
-              redirect: (context, state) {
-                final authState = context.read<AuthBloc>().state;
-                final isAuthPage = state.matchedLocation == '/login' || state.matchedLocation == '/register';
-                
-                // Si l'authentification est en cours de vérification, on ne redirige pas (évite les boucles)
-                if (authState is AuthLoading) {
-                  return null;
-                }
-                
-                // Si l'utilisateur est authentifié et tente d'accéder aux pages de login/register,
-                // nous le redirigeons vers le dashboard
-                if (authState is AuthAuthenticated && isAuthPage) {
-                  return '/dashboard';
-                }
-                
-                // Si l'utilisateur n'est pas authentifié et tente d'accéder à une page protégée,
-                // nous le redirigeons vers le login
-                if (authState is AuthUnauthenticated && !isAuthPage) {
-                  return '/login';
-                }
-                
-                return null;
-              },
-            ),
-          );
-        },
-      ),
+      child: const _AppRouter(),
     );
+  }
+}
+
+class _AppRouter extends StatefulWidget {
+  const _AppRouter();
+
+  @override
+  State<_AppRouter> createState() => _AppRouterState();
+}
+
+class _AppRouterState extends State<_AppRouter> {
+  late final GoRouter _router;
+
+  @override
+  void initState() {
+    super.initState();
+    _router = GoRouter(
+      initialLocation: '/login',
+      routes: [
+        GoRoute(
+          path: '/login',
+          builder: (context, state) => const LoginPage(),
+        ),
+        GoRoute(
+          path: '/register',
+          builder: (context, state) => const RegisterPage(),
+        ),
+        GoRoute(
+          path: '/dashboard',
+          builder: (context, state) => const DashboardPage(),
+        ),
+        GoRoute(
+          path: '/projects',
+          builder: (context, state) => const ProjectListPage(),
+        ),
+        GoRoute(
+          path: '/tasks',
+          builder: (context, state) => const TaskListPage(),
+        ),
+      ],
+      redirect: (context, state) {
+        final authState = context.read<AuthBloc>().state;
+        final isAuthPage = state.matchedLocation == '/login' || state.matchedLocation == '/register';
+        
+        if (authState is AuthLoading) {
+          return null;
+        }
+        
+        if (authState is AuthAuthenticated && isAuthPage) {
+          return '/dashboard';
+        }
+        
+        if (authState is AuthUnauthenticated && !isAuthPage) {
+          return '/login';
+        }
+        
+        return null;
+      },
+      refreshListenable: GoRouterRefreshStream(context.read<AuthBloc>().stream),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
+      title: 'Pegasus - Smart Workflow Manager',
+      theme: AppTheme.lightTheme(),
+      darkTheme: AppTheme.darkTheme(),
+      debugShowCheckedModeBanner: false,
+      routerConfig: _router,
+    );
+  }
+}
+
+class GoRouterRefreshStream extends ChangeNotifier {
+  GoRouterRefreshStream(Stream<dynamic> stream) {
+    notifyListeners();
+    _subscription = stream.asBroadcastStream().listen(
+          (dynamic _) => notifyListeners(),
+        );
+  }
+
+  late final StreamSubscription<dynamic> _subscription;
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
   }
 }

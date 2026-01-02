@@ -35,7 +35,7 @@ class ProjectDetailsPage extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => di.getIt<ProjectBloc>()..add(GetProjectByIdEvent(projectId)),
+          create: (context) => di.getIt<ProjectBloc>()..add(LoadProjectById(projectId)),
         ),
         BlocProvider(
           create: (context) => di.getIt<TaskBloc>()..add(LoadTasksByProject(projectId)),

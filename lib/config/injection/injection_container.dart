@@ -111,21 +111,15 @@ Future<void> init() async {
   // Le repository agit comme source de vérité unique, orchestrant la logique entre les données distantes et locales
   // Repository
   // Nous utilisons maintenant les vrais repositories avec Hive comme stockage local
-  const bool useMockData = false; 
-
-  if (useMockData) {
-    print('🚨 DEMO MODE ACTIVATED: Using Mock Repositories');
-    getIt.registerLazySingleton<AuthRepository>(() => MockAuthRepository());
-  } else {
-    print('💾 REAL MODE: Using Hive Local Storage');
-    getIt.registerLazySingleton<AuthRepository>(
-      () => AuthRepositoryImpl(
-        remoteDataSource: getIt(),
-        localDataSource: getIt(),
-        networkInfo: getIt(),
-      ),
-    );
-  }
+  const bool useMockData = false; // This flag controls other repositories
+  // Auth Repository - USING MOCK FOR OFFLINE SUPPORT
+  // Le MockAuthRepository fonctionne sans vérification réseau
+  print('🔐 AUTH: Using MockAuthRepository (offline support)');
+  getIt.registerLazySingleton<AuthRepository>(
+    () => MockAuthRepository(
+      localDataSource: getIt(),
+    ),
+  );
 
   // Use cases
   // Chaque UseCase encapsule une règle métier atomique et spécifique

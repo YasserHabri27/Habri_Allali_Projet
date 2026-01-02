@@ -15,15 +15,6 @@ class PremiumBackground extends StatelessWidget {
       height: double.infinity,
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
-        image: DecorationImage(
-          image: const AssetImage('assets/images/premium_bg_pattern.png'), // Placeholder for a pattern
-          fit: BoxFit.cover,
-          colorFilter: ColorFilter.mode(
-            isDark ? Colors.black.withOpacity(0.8) : Colors.white.withOpacity(0.8),
-            BlendMode.darken,
-          ),
-          onError: (exception, stackTrace) {}, // Fail silently if image missing
-        ),
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,

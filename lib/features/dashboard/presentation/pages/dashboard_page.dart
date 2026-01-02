@@ -20,7 +20,7 @@ class DashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => context.read<DashboardBloc>()..add(LoadDashboardData()),
+      create: (context) => di.getIt<DashboardBloc>()..add(LoadDashboardData()),
       child: Scaffold(
         extendBodyBehindAppBar: true,
         // Nous configurons l'AppBar pour être transparente afin de laisser apparaître le fond premium
